@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Drawing Website</title>
+    <style>
+        /* Add some basic styling for your canvas and drag-and-drop */
+        #drawingCanvas {
+            border: 1px solid black;
+            display: block;
+            margin-bottom: 20px;
+        }
+        #draggable {
+            width: 100px;
+            height: 100px;
+            background-color: lightblue;
+            cursor: pointer;
+        }
+        #dropzone {
+            width: 200px;
+            height: 200px;
+            border: 2px dashed #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+    <div id="draggable" draggable="true">Drag me</div>
+    <div id="dropzone">Drop here</div>
+
+    <script>
+        // Drawing Functionality
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+
+        function startDrawing(e) {
+            isDrawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.closePath();
+        }
+
+        // Drag-and-Drop Functionality
+        const draggable = document.getElementById('draggable');
+        const dropzone = document.getElementById('dropzone');
+
+        draggable.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text', 'dragging');
+        });
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.appendChild(draggable);
+        });
+    </script>
+</body>
+</html>
