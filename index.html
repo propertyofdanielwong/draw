@@ -3,38 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Drawing Website</title>
+    <title>Collage Maker</title>
     <style>
-        /* Add some basic styling for your canvas and drag-and-drop */
-        #drawingCanvas {
-            border: 1px solid black;
-            display: block;
-            margin-bottom: 20px;
+        body {
+            background-color: #ffccff;
+            font-family: 'Comic Sans MS', 'Chalkboard', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
         }
-        #draggable {
+        h1 {
+            color: #ff66ff;
+            font-size: 3em;
+        }
+        #canvasContainer {
+            position: relative;
+            margin: 20px auto;
+            width: 800px;
+            height: 600px;
+            background-color: #ffffff;
+            border: 5px solid #ff66ff;
+            border-radius: 30px;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        #imageContainer {
+            margin: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .draggableImage {
             width: 100px;
             height: 100px;
-            background-color: lightblue;
+            border-radius: 50px;
+            border: 2px solid #ff66ff;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.1);
             cursor: pointer;
-        }
-        #dropzone {
-            width: 200px;
-            height: 200px;
-            border: 2px dashed #000;
         }
     </style>
 </head>
 <body>
-    <canvas id="drawingCanvas" width="800" height="600"></canvas>
-    <div id="draggable" draggable="true">Drag me</div>
-    <div id="dropzone">Drop here</div>
+
+    <h1>Y2K Collage Maker</h1>
+
+    <!-- Images Section -->
+    <div id="imageContainer">
+        <img src="https://source.unsplash.com/random/100x100" class="draggableImage" draggable="true" />
+        <img src="https://source.unsplash.com/random/100x100?sig=1" class="draggableImage" draggable="true" />
+        <img src="https://source.unsplash.com/random/100x100?sig=2" class="draggableImage" draggable="true" />
+    </div>
+
+    <!-- Collage Canvas -->
+    <div id="canvasContainer">
+        <canvas id="collageCanvas" width="800" height="600"></canvas>
+    </div>
 
     <script>
-        // Drawing Functionality
-        const canvas = document.getElementById('drawingCanvas');
+        const canvas = document.getElementById('collageCanvas');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
 
+        // Drawing functionality
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', stopDrawing);
@@ -48,6 +82,8 @@
         function draw(e) {
             if (!isDrawing) return;
             ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.strokeStyle = '#ff66ff';
+            ctx.lineWidth = 5;
             ctx.stroke();
         }
 
@@ -56,22 +92,35 @@
             ctx.closePath();
         }
 
-        // Drag-and-Drop Functionality
-        const draggable = document.getElementById('draggable');
-        const dropzone = document.getElementById('dropzone');
+        // Drag-and-Drop functionality for images
+        const images = document.querySelectorAll('.draggableImage');
+        let draggedImage = null;
 
-        draggable.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text', 'dragging');
+        images.forEach(image => {
+            image.addEventListener('dragstart', function(e) {
+                draggedImage = this;
+                setTimeout(() => (this.style.visibility = 'hidden'), 0);
+            });
+
+            image.addEventListener('dragend', function(e) {
+                setTimeout(() => (this.style.visibility = 'visible'), 0);
+                draggedImage = null;
+            });
         });
 
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
+        canvas.addEventListener('dragover', (e) => e.preventDefault());
 
-        dropzone.addEventListener('drop', (e) => {
+        canvas.addEventListener('drop', function(e) {
             e.preventDefault();
-            dropzone.appendChild(draggable);
+            const x = e.offsetX;
+            const y = e.offsetY;
+            const img = new Image();
+            img.src = draggedImage.src;
+            img.onload = function() {
+                ctx.drawImage(img, x - 50, y - 50, 100, 100);
+            };
         });
     </script>
+
 </body>
 </html>
